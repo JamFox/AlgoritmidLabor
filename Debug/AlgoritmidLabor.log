@@ -1,0 +1,4 @@
+﻿  Main.cpp
+C:\Users\karl-\source\repos\AlgoritmidLabor\AlgoritmidLabor\Main.cpp(54,9): warning C4101: 'j': unreferenced local variable
+C:\Users\karl-\source\repos\AlgoritmidLabor\AlgoritmidLabor\Main.cpp(54,6): warning C4101: 'i': unreferenced local variable
+  AlgoritmidLabor.vcxproj -> C:\Users\karl-\source\repos\AlgoritmidLabor\Debug\AlgoritmidLabor.exe
