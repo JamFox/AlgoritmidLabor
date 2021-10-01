@@ -13,6 +13,9 @@
 #define O 4 
 // For testing 25 < N < 35 is sufficient. N may never be 0.
 #define N 35 
+// Define GetDateString string length that returns DD-MM-YYYY
+// AKA 10 for string and +1 for null string = 11
+#define DATESTRINGLEN 11
 
 void PrintObjects(HeaderD* pStruct7)
 {
@@ -31,7 +34,7 @@ void PrintObjects(HeaderD* pStruct7)
 			Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
 
 			// Traverse linked list of objects
-			while (pObjectTemp->pNext != NULL)
+			while (pObjectTemp != NULL)
 			{ 
 
 				// Print Object ID, Code and Date
@@ -52,19 +55,26 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 {
 	// Initialize the traversal pointers 
 	HeaderD* pStructTemp = *pStruct7;
-	HeaderD* pStructNew;
+	HeaderD* pStructNew = NULL;
 
 	while (*pNewID != pStructTemp->cBegin)
 	{
-		// If next pointer is NULL and letters do not match
-		// ...then create new Header to it
+		printf("NewC %c, Cbegin %c \n", *pNewID, pStructTemp->cBegin);
+		// If next pointer is NULL...
+		// ...then create new Header for Object
 		if (pStructTemp->pNext == NULL)
 		{
 			// Alloc memory and insert data into new Header
 			pStructNew = (HeaderD*)malloc(sizeof(HeaderD));
+			if (pStructNew == NULL)
+			{
+				printf("InsertNewObject(): malloc failed!");
+				return 0;
+			}
 			pStructNew->pPrior = pStructTemp;
 			pStructNew->pNext = NULL;
 			pStructNew->cBegin = *pNewID;
+			pStructNew->pObject = NULL;
 			// Change pointers to insert new Header into list
 			pStructTemp->pNext = pStructNew;
 			pStructTemp = pStructNew;
@@ -76,9 +86,15 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 		{
 			// Alloc memory and insert data into new Header
 			pStructNew = (HeaderD*)malloc(sizeof(HeaderD));
+			if (pStructNew == NULL)
+			{
+				printf("InsertNewObject(): malloc failed!");
+				return 0;
+			}
 			pStructNew->pPrior = pStructTemp;
 			pStructNew->pNext = pStructTemp->pNext;
 			pStructNew->cBegin = *pNewID;
+			pStructNew->pObject = NULL;
 			// Change pointers to insert new Header into list
 			pStructTemp->pNext->pPrior = pStructNew;
 			pStructTemp->pNext = pStructNew;
@@ -92,29 +108,80 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 
 	// Declare a temp pointer from headers object
 	Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
-	while (pObjectTemp->pNext != NULL)
-	{
-		pObjectTemp = pObjectTemp->pNext;
+	if (pObjectTemp != NULL) {
+		while (pObjectTemp->pNext != NULL)
+		{
+			pObjectTemp = pObjectTemp->pNext;
+		}
+		// Allocate memory for new Object
+		Object4* pObjectNew = (Object4*)malloc(sizeof(Object4));
+		// Insert Code to new Object
+		pObjectNew->Code = NewCode;
+		// Insert Date to new Object
+		time_t RawTime = time(NULL);
+		char* pResult = (char*)malloc(DATESTRINGLEN);
+		if (pResult == NULL)
+		{
+			printf("InsertNewObject(): malloc failed!");
+			return 0;
+		}
+		if (GetDateString(RawTime, DATESTRINGLEN, pResult) == 1)
+		{
+			pObjectNew->pDate = pResult;
+		}
+		else {
+			printf("InsertNewObject(): Unable to get date!");
+			return 0;
+		}
+		// Allocate memory for new ID and insert into new Object
+		pObjectNew->pID = (char*)malloc(strlen(pNewID));
+		if (pObjectNew->pID == NULL)
+		{
+			printf("InsertNewObject(): malloc failed!");
+			return 0;
+		}
+		strcpy(pObjectNew->pID, pNewID);
+		// Set next in list to NULL if last Object in list
+		pObjectNew->pNext = NULL;
+		// Insert new Object into list 
+		pObjectTemp->pNext = pObjectNew;
 	}
-	Object4* pObjectNew = (Object4*)malloc(sizeof(Object4));
-	pObjectNew->Code = NewCode;
-
-	time_t RawTime = time(NULL);
-	int nResult = 11;
-	char* pResult = (char*)malloc(nResult);
-	if (GetDateString(RawTime, nResult, pResult) == 1)
+	else 
 	{
-		printf("--%s---------------------------\n", pResult);
-		char* br = (char*)malloc(strlen("22-22-2222") + 1);
-		strcpy(br, "22-22-2222");
-		// pObjectNew->pDate = pResult;
-		pObjectNew->pDate = br;
-	}
-	pObjectNew->pID = (char*)malloc(strlen(pNewID));
-	strcpy(pObjectNew->pID, pNewID);
-	pObjectNew->pNext = NULL; 
+		// Allocate memory for new Object
+		Object4* pObjectTemp = (Object4*)malloc(sizeof(Object4));
+		if (pObjectTemp == NULL)
+		{
+			printf("InsertNewObject(): malloc failed!");
+			return 0;
+		}
 
-	pObjectTemp->pNext = pObjectNew;
+		// Insert Code to new Object
+		pObjectTemp->Code = NewCode;
+		// Insert Date to new Object
+		time_t RawTime = time(NULL);
+		char* pResult = (char*)malloc(DATESTRINGLEN);
+		if (pResult == NULL)
+		{
+			printf("InsertNewObject(): malloc failed!");
+			return 0;
+		}
+		if (GetDateString(RawTime, DATESTRINGLEN, pResult) == 1)
+		{
+			pObjectTemp->pDate = pResult;
+		}
+		else {
+			printf("InsertNewObject(): Unable to get date, exiting...");
+			return 0;
+		}
+		// Allocate memory for new ID and insert into new Object
+		pObjectTemp->pID = (char*)malloc(strlen(pNewID));
+		strcpy(pObjectTemp->pID, pNewID);
+		// Set next in list to NULL if last Object in list
+		pObjectTemp->pNext = NULL;
+		// Insert new Object into list 
+		pStructTemp->pObject = pObjectTemp;
+	}
 
 	return 1;
 }
@@ -136,7 +203,7 @@ int main()
 
 
 	char* pNewID = (char*)malloc(strlen("Zuehdoc") + 1);
-	strcpy(pNewID, "Buehdoc");
+	strcpy(pNewID, "Buehdoccc");
 	printf("%c\n", *pNewID);
 
 	if ('Z' > *pNewID) {
@@ -149,7 +216,6 @@ int main()
 		PrintObjects(pStruct7);
 	}
 	// Last object Ypuwquch 197775800 01-10-2021
-
 	
 	//freeStruct(pStruct7);
 	return 0;
