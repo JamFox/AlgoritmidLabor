@@ -18,31 +18,33 @@ void PrintObjects(HeaderD* pStruct7)
 {
 	// Initialize the traversal pointer
 	HeaderD* pStructTemp = pStruct7;
-	int i, j;
+	int i = 1, j = 1;
 
 	// Traverse double linked list of headers until we hit NULL on pNext
-	for (i = 1; pStructTemp != NULL; i++)
-	{
+	while (pStructTemp != NULL)
+	{ 
 
 		// Print header number and it's cBegin
 		printf("[Hdr %d] %c\n", i, pStructTemp->cBegin);
 
-		// Declare a temp pointer from header struct
-		Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
+			// Declare a temp pointer from header struct
+			Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
 
-		// Traverse linked list of objects
-		for (j = 1; pObjectTemp->pNext != NULL; j++)
-		{
+			// Traverse linked list of objects
+			while (pObjectTemp->pNext != NULL)
+			{ 
 
-			// Print Object ID, Code and Date
-			printf("\t (Obj %d) %s ", j, pObjectTemp->pID);
-			printf("%lu %s\n", pObjectTemp->Code, pObjectTemp->pDate);
-			// Set traversal pointer to pNext of current Object
-			pObjectTemp = pObjectTemp->pNext;
-		}
+				// Print Object ID, Code and Date
+				printf("\t (Obj %d) %s ", j, pObjectTemp->pID); 
+				printf("%lu %s\n", pObjectTemp->Code, pObjectTemp->pDate);
+				// Set traversal pointer to pNext of current Object
+				pObjectTemp = pObjectTemp->pNext;
+				j++;
+			}
 
 		// Set traversal pointer to pNext of current Header
 		pStructTemp = pStructTemp->pNext;
+		i++;
 	}
 }
 
@@ -54,12 +56,10 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 
 	while (*pNewID != pStructTemp->cBegin)
 	{
-
 		// If next pointer is NULL and letters do not match
 		// ...then create new Header to it
-		if (pStructTemp->pNext == NULL && pStructTemp->pNext->cBegin != *pNewID)
+		if (pStructTemp->pNext == NULL)
 		{
-			printf("next pointer is null and letters dont match\n");
 			// Alloc memory and insert data into new Header
 			pStructNew = (HeaderD*)malloc(sizeof(HeaderD));
 			pStructNew->pPrior = pStructTemp;
@@ -70,12 +70,10 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 			pStructTemp = pStructNew;
 			break;
 
-			// If cBegin of next Header is later in...
-			// ...alphabet create a new Header
-		}
-		else if (pStructTemp->pNext->cBegin > *pNewID)
+		// If cBegin of next Header is later in...
+		// ...alphabet create a new Header
+		} else if (pStructTemp->pNext->cBegin > *pNewID)
 		{
-			printf("next letter is higher than newID first letter\n");
 			// Alloc memory and insert data into new Header
 			pStructNew = (HeaderD*)malloc(sizeof(HeaderD));
 			pStructNew->pPrior = pStructTemp;
@@ -92,7 +90,7 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 		pStructTemp = pStructTemp->pNext;
 	}
 
-	// Declare a temp pointer from header struct
+	// Declare a temp pointer from headers object
 	Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
 	while (pObjectTemp->pNext != NULL)
 	{
@@ -106,11 +104,15 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 	char* pResult = (char*)malloc(nResult);
 	if (GetDateString(RawTime, nResult, pResult) == 1)
 	{
-		pObjectNew->pDate = pResult;
+		printf("--%s---------------------------\n", pResult);
+		char* br = (char*)malloc(strlen("22-22-2222") + 1);
+		strcpy(br, "22-22-2222");
+		// pObjectNew->pDate = pResult;
+		pObjectNew->pDate = br;
 	}
-	pObjectNew->pID = (char*)malloc(sizeof(pNewID));
+	pObjectNew->pID = (char*)malloc(strlen(pNewID));
 	strcpy(pObjectNew->pID, pNewID);
-	pObjectNew->pNext = NULL;
+	pObjectNew->pNext = NULL; 
 
 	pObjectTemp->pNext = pObjectNew;
 
@@ -125,16 +127,16 @@ int main()
 	PrintObjects(pStruct7);
 
 	time_t RawTime = time(NULL);
-	int nResult = 11;
-	char* pResult = (char*)malloc(nResult);
+	int nResult = 11; 
+	char* pResult = (char*)malloc(nResult); 
 	if (GetDateString(RawTime, nResult, pResult) == 1)
 	{
 		printf("GOT DATE %s\n", pResult);
 	}
 
 
-	char* pNewID = (char*)malloc(strlen("Yyuehdoc") + 1);
-	strcpy(pNewID, "Yyuehdoc");
+	char* pNewID = (char*)malloc(strlen("Zuehdoc") + 1);
+	strcpy(pNewID, "Buehdoc");
 	printf("%c\n", *pNewID);
 
 	if ('Z' > *pNewID) {
@@ -148,7 +150,7 @@ int main()
 	}
 	// Last object Ypuwquch 197775800 01-10-2021
 
-
+	
 	//freeStruct(pStruct7);
 	return 0;
 }
