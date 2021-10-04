@@ -29,6 +29,7 @@ void PrintObjects(HeaderD* pStruct7)
   HeaderD* pStructTemp = pStruct7;
   int i = 1, j = 1;
 
+  printf("\n\n\n--------Printing linked list:----------\n\n\n");
   // Traverse double linked list of headers until we hit NULL on pNext
   while (pStructTemp != NULL)
   { 
@@ -171,7 +172,7 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
       // If it's the first loop then there is no pPrior 
       if(firstloop == true) 
       {
-        *pStruct7 = pHeaderDNew(pNewID, NULL, pStructTemp->pNext);
+        *pStruct7 = pHeaderDNew(pNewID, NULL, pStructTemp);
         pStructTemp = *pStruct7;
         break;
       }
@@ -226,13 +227,61 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 Object4* RemoveExistingObject(HeaderD **pStruct7, char *pExistingID)
 {
   HeaderD* pStructTemp = *pStruct7;
-
+  // Loop through headers to find matching first letter
   while (*pExistingID != pStructTemp->cBegin)
   {
-
+    // If next pointer is NULL, then Object did not exist
+    if (pStructTemp->pNext == NULL)
+    {
+      printf("Header with '%c' does not exist!\n", *pExistingID);
+      return NULL;
+    }
+    // Set traversal pointer to pNext of current Header
+    pStructTemp = pStructTemp->pNext;
   }
+
   Object4* pObjectTemp = (Object4*)pStructTemp->pObject; 
-  return pObjectTemp;
+  bool firstloop = true; 
+  Object4* pObjectPrevious = pObjectTemp;
+  int cmpvalue;
+  // If Object ptr is not NULL, then loop through Objects to fins insertion point
+  for(;pObjectTemp != NULL;
+      pObjectPrevious=pObjectTemp,pObjectTemp = pObjectTemp->pNext)
+  {
+    cmpvalue = strcmp(pExistingID, pObjectTemp->pID);
+    // If ID is found on the first loop
+    if (cmpvalue == 0 && firstloop == true)
+    {
+      // If there are no other Object except the current one
+      if (pObjectTemp->pNext == NULL)
+      {
+        // If the Object is last of the first Header
+        if (pObjectTemp->pNext == NULL && pStructTemp->pPrior == NULL)
+        {
+          *pStruct7 = pStructTemp->pNext; 
+        }
+        if (pStructTemp->pPrior != NULL)
+        {
+          pStructTemp->pPrior->pNext = pStructTemp->pNext;
+        }
+        if (pStructTemp->pNext != NULL)
+        {
+          pStructTemp->pNext->pPrior = pStructTemp->pPrior;
+        }
+      } else {
+        pStructTemp->pObject = pObjectTemp->pNext;
+      }
+      return pObjectTemp;
+    }
+    firstloop = false;
+    if (cmpvalue == 0)
+    { 
+      pObjectPrevious->pNext = pObjectTemp->pNext;
+      return pObjectTemp;
+    }
+  }
+  printf("Could not find ID: %s\n", pExistingID);
+  return NULL;
 }
 
 int main()
@@ -243,7 +292,7 @@ int main()
   PrintObjects(pStruct7);
 
   // Create strings for tests as specified in lab instructions
-  const char *strings[] = {"Dx","Db","Dz","Dk","Aa","Wu","Wa","Zw","Za","wk","Wa","WW","W8","W_"};
+  const char *strings[] = {"Dx","Db","Dz","Dk","Aa","Wu","Wa","Zw","Za","wk","Wa","WW","W8","W_","Bro"};
 
   // Loop through strings and add them to the appropriate lists
   HeaderD** ppStruct7 = &pStruct7;
@@ -254,9 +303,14 @@ int main()
   }
   PrintObjects(pStruct7);
 
+  Object4* pObjectTrash;
   // Loop through strings and remove them from lists
-  for (int i = 0; i < 14; i++){
-
+  for (int i = 0; i < 15; i++){
+    pObjectTrash = RemoveExistingObject(ppStruct7, (char*)strings[i]);
+    if (pObjectTrash == NULL)
+    {
+      printf("Could remove ID: %s\n", strings[i]);
+    }
   }
   PrintObjects(pStruct7);
 
