@@ -57,7 +57,7 @@ void PrintObjects(HeaderD* pStruct7)
 	}
 }
 
-HeaderD* pHeaderDNew(char* pNewID, int NewCode, HeaderD* pStructPrior, HeaderD* pStructNext)
+HeaderD* pHeaderDNew(char* pNewID, HeaderD* pStructPrior, HeaderD* pStructNext)
 {
 	HeaderD* pStructNew = (HeaderD*)malloc(sizeof(HeaderD));
 	if (pStructNew == NULL)
@@ -144,6 +144,8 @@ bool lowerAfterFirst(char* pInput)
 
 int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 {
+  // Print error if ID is not with first upper letter, does not consist...
+  // ...fully of letters or is not lowercase after first upper letter
 	if (!isupper(*pNewID) || !isLetters(pNewID) || !lowerAfterFirst(pNewID))
 	{
 		printf("ID does not match formatting requirements!\n");
@@ -151,17 +153,15 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 	}
 	// Initialize the traversal pointer 
 	HeaderD* pStructTemp = *pStruct7;
-	HeaderD* pStructPrevious = pStructTemp;
 
   bool firstloop = true;
-
 	while (*pNewID != pStructTemp->cBegin)
 	{
 		// If next pointer is NULL...
 		// ...then create new Header for Object
 		if (pStructTemp->pNext == NULL)
 		{
-			pStructTemp->pNext = pHeaderDNew(pNewID, NewCode, pStructTemp, pStructTemp->pNext);
+			pStructTemp->pNext = pHeaderDNew(pNewID, pStructTemp, pStructTemp->pNext);
 			pStructTemp = pStructTemp->pNext;
 			break;
     }            
@@ -172,80 +172,54 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
       // If it's the first loop then there is no pPrior 
       if(firstloop == true) 
       {
-        *pStruct7 = pHeaderDNew(pNewID, NewCode, NULL, pStructTemp->pNext);
+        *pStruct7 = pHeaderDNew(pNewID, NULL, pStructTemp->pNext);
         pStructTemp = *pStruct7;
         break;
       }
-			pStructTemp->pNext = pHeaderDNew(pNewID, NewCode, pStructTemp, pStructTemp->pNext);
+			pStructTemp->pNext = pHeaderDNew(pNewID, pStructTemp, pStructTemp->pNext);
       pStructTemp = pStructTemp->pNext;
 			break;
 		}
 		// Set traversal pointer to pNext of current Header
-    pStructPrevious = pStructTemp;
 		pStructTemp = pStructTemp->pNext;
     firstloop = false;
 	}
 
-	// Declare a temp pointer from headers object
+	// Declare traversal pointers
 	Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
-
-	//char* pTempNew;
-	//char* pTempOld;
   firstloop = true; 
   Object4* pObjectPrevious = pObjectTemp;
   int cmpvalue;
+  // If Object ptr is not NULL, then loop through Objects to fins insertion point
 	for(;pObjectTemp != NULL;
       pObjectPrevious=pObjectTemp,pObjectTemp = pObjectTemp->pNext)
   {
     cmpvalue = strcmp(pNewID, pObjectTemp->pID);
+    // If the new ID is earlier alphabetically than the current Object...
+    // ...and it is the first loop, then exit loop...
     if (cmpvalue < 0 && firstloop == true) break;
+    // ...otherwise set firstloop to false
     firstloop = false;
     if (cmpvalue == 0)
     { 
       printf("ID already exists!\n"); 
       return 0;
     }
+    // If new ID is later alphabetically than the current Object...
+    // ...then move on to the next Object
     if (cmpvalue < 0)
     { 
       continue;
     }
+    // If new ID is earlier alphabetically than the current Object...
+    // ...then insert between current and previous Object 
     if (cmpvalue > 0) 
     {
       pObjectPrevious->pNext = pObject4New(pNewID, NewCode, pObjectPrevious->pNext);
       return 1;
     }
-    /*
-    // If ID already exists, exit
-    if(strcmp(pNewID, pObjectTemp->pID) == 0)
-    {
-      printf("ID already exists!\n");
-      return 0;
-    }
-    
-    // Declare char ptrs for comparing
-    pTempNew = pNewID+1;
-    pTempOld = pObjectTemp->pID+1;
-    // If it's the first loop and new object ID is supposed to be first
-    if(*pTempNew < *pTempOld && firstloop == true) break;
-    firstloop = false;
-    // Loop through characters one by one
-    for(;
-        *pTempNew != '\0' || *pTempOld != '\0';
-        pTempOld++,pTempNew++)
-    {
-      if(pObjectTemp->pNext == NULL && *pTempNew > *pTempOld)
-      {
-        pObjectTemp->pNext = pObject4New(pNewID, NewCode, pObjectTemp->pNext);
-        return 1;
-      }
-      if(*pTempNew < *pTempOld)
-      {
-        pObjectPrevious->pNext = pObject4New(pNewID, NewCode, pObjectPrevious->pNext);
-        return 1; 
-      }
-      if(*pTempNew > *pTempOld) break;
-    }*/
   }
+  // Add object as the first in Headers list
 	pStructTemp->pObject = pObject4New(pNewID, NewCode, pObjectTemp);
 	return 1;
 }
@@ -255,16 +229,26 @@ int main()
 	// Struct is given by instructor, for Karl-Andreas Turvas Struct7
 	// g) Struct7 puhul: 
 	HeaderD* pStruct7 = GetStruct7(O, N);
+	PrintObjects(pStruct7);
 
+  // Create strings for tests as specified in lab instructions
   const char *strings[] = {"Dx","Db","Dz","Dk","Aa","Wu","Wa","Zw","Za","wk","Wa","WW","W8","W_"};
+
+  // Loop through strings and add them to the appropriate lists
 	HeaderD** ppStruct7 = &pStruct7;
   for (int i = 0; i < 14; i++){
-	if (InsertNewObject(ppStruct7, (char*)strings[i], randomlx(0, 999999)) == 0) {
-    printf("InsertNewObject(): failed! Could not add %s \n\n", strings[i]);
-	}
+	  if (InsertNewObject(ppStruct7, (char*)strings[i], randomlx(0, 999999)) == 0) {
+      printf("InsertNewObject(): failed! Could not add %s \n\n", strings[i]);
+	  }
   }
 	PrintObjects(pStruct7);
-	//freeStruct(pStruct7);
+
+  // Loop through strings and remove them from lists
+  for (int i = 0; i < 14; i++){
+  
+  }
+	PrintObjects(pStruct7);
+
 	return 0;
 }
 
