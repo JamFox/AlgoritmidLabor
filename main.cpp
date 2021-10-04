@@ -36,20 +36,19 @@ void PrintObjects(HeaderD* pStruct7)
 		// Print header number and it's cBegin
 		printf("[Hdr %d] %c\n", i, pStructTemp->cBegin);
 
-			// Declare a temp pointer from header struct
-			Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
+		// Declare a temp pointer from header struct
+		Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
 
-			// Traverse linked list of objects
-			while (pObjectTemp != NULL)
-			{ 
-
-				// Print Object ID, Code and Date
-				printf("\t (Obj %d) %s ", j, pObjectTemp->pID); 
-				printf("%lu %s\n", pObjectTemp->Code, pObjectTemp->pDate);
-				// Set traversal pointer to pNext of current Object
-				pObjectTemp = pObjectTemp->pNext;
-				j++;
-			}
+		// Traverse linked list of objects
+		while (pObjectTemp != NULL)
+		{ 
+	  	// Print Object ID, Code and Date
+			printf("\t (Obj %d) %s ", j, pObjectTemp->pID); 
+			printf("%lu %s\n", pObjectTemp->Code, pObjectTemp->pDate);
+			// Set traversal pointer to pNext of current Object
+			pObjectTemp = pObjectTemp->pNext;
+      j++;
+		}
 
 		// Set traversal pointer to pNext of current Header
 		pStructTemp = pStructTemp->pNext;
