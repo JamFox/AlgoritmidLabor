@@ -224,6 +224,18 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 	return 1;
 }
 
+Object4* RemoveExistingObject(HeaderD **pStruct7, char *pExistingID)
+{
+	HeaderD* pStructTemp = *pStruct7;
+
+	while (*pExistingID != pStructTemp->cBegin)
+	{
+
+  }
+  Object4* pObjectTemp = (Object4*)pStructTemp->pObject; 
+  return pObjectTemp;
+}
+
 int main()
 {
 	// Struct is given by instructor, for Karl-Andreas Turvas Struct7
