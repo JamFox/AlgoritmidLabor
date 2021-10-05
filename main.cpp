@@ -57,6 +57,7 @@ void PrintObjects(HeaderD* pStruct7)
   }
 }
 
+// Returns pointer to new Header
 HeaderD* pHeaderDNew(char* pNewID, HeaderD* pStructPrior, HeaderD* pStructNext)
 {
   HeaderD* pStructNew = (HeaderD*)malloc(sizeof(HeaderD));
@@ -77,6 +78,7 @@ HeaderD* pHeaderDNew(char* pNewID, HeaderD* pStructPrior, HeaderD* pStructNext)
   return pStructNew;
 }
 
+// Return pointer to new Object
 Object4* pObject4New(char* pNewID, unsigned long int NewCode, Object4* pNextOb) {
   // Allocate memory for new Object
   Object4* pObjectNew = (Object4*)malloc(sizeof(Object4));
@@ -111,6 +113,7 @@ Object4* pObject4New(char* pNewID, unsigned long int NewCode, Object4* pNextOb) 
   return pObjectNew;
 }
 
+// Return true if string is composed of letters
 bool isLetters(char* pInput)
 {
   while (*pInput != '\0')
@@ -126,6 +129,7 @@ bool isLetters(char* pInput)
   return true; 
 }
 
+// Returns true if strings letters are lowercase after first
 bool lowerAfterFirst(char* pInput)
 {
   pInput++;
@@ -141,7 +145,7 @@ bool lowerAfterFirst(char* pInput)
   return true; 
 }
 
-
+// Insert new Object, create new Header if needed
 int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 {
   // Print error if ID is not with first upper letter, does not consist...
@@ -155,6 +159,7 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
   HeaderD* pStructTemp = *pStruct7;
 
   bool firstloop = true;
+  // Loop through Headers until cBegin equals new IDs first letter
   while (*pNewID != pStructTemp->cBegin)
   {
     // If next pointer is NULL...
@@ -166,7 +171,7 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
       break;
     }            
     // If cBegin of next Header is later in...
-    // ...alphabet, create a new Header
+    // ...alphabet, create a new Header between
     if (pStructTemp->pNext->cBegin > *pNewID)
     {
       // If it's the first loop then there is no pPrior 
@@ -187,10 +192,10 @@ int InsertNewObject(HeaderD** pStruct7, char* pNewID, int NewCode)
 
   // Declare traversal pointers
   Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
-  firstloop = true; 
   Object4* pObjectPrevious = pObjectTemp;
+  firstloop = true; 
   int cmpvalue;
-  // If Object ptr is not NULL, then loop through Objects to fins insertion point
+  // If Object ptr is not NULL, then loop through Objects to find insertion point
   for(;pObjectTemp != NULL;
       pObjectPrevious=pObjectTemp,pObjectTemp = pObjectTemp->pNext)
   {
