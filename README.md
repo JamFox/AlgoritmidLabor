@@ -4,7 +4,7 @@ Struct 7, Object 4
 
 http://www.tud.ttu.ee/im/Viktor.Leppikson/
 
-# Linuxil Visual Studio Compiler (Credit to: rebane@alkohol.ee)
+## Linuxil Visual Studio Compiler (Credit to: rebane@alkohol.ee)
 
 Esmalt on vaja windowsi masinat või virtuaalmasinat. Ning sinna tuleb installida Microsoft Visual Studio 2019. Kiire sissejuhatus on Viktor Leppiksoni enda dokumendis: http://www.tud.ttu.ee/im/Viktor.Leppikson/IAS0090%20labori%20juhend%202021.pdf
 
