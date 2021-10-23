@@ -289,6 +289,117 @@ Object4* RemoveExistingObject(HeaderD **pStruct7, char *pExistingID)
   return NULL;
 }
 
+Node *InsertNode(Node *pTree, Object4 *pNewRecord) {
+  Node *pNew = (Node*)malloc(sizeof(Node));// uus tipp
+  if (pNew == NULL)
+  {
+    printf("InsertNode(): malloc failed!");
+    exit(EXIT_FAILURE);
+  }
+  pNew->pObject = pNewRecord;
+  pNew->pLeft = pNew->pRight = 0;
+  if(!pTree)
+    return pNew;// puu oli tühi
+  for(Node *p = pTree; 1; ) {
+    Object4* pTreeObject = (Object4*)p->pObject;
+    char* pTreeID=pTreeObject->pID;
+    if (strcmp(pNewRecord->pID, pTreeID)) {
+      if (!p->pLeft) {// leidsime tühja koha
+        p->pLeft = pNew;
+        return pTree;
+      }
+      else
+        p = p->pLeft;// liigume vasakule
+    }
+    else {
+      if(!p->pRight) { // leidsime tühja koha
+        p->pRight = pNew;
+        return pTree;
+      }
+      else
+        p = p->pRight;// liigume paremale
+    }
+  }
+}
+
+Node *CreateBinaryTree(HeaderD *pStruct7)
+{
+  Node *pBinaryTree = NULL;
+  // Initialize the traversal pointer
+  HeaderD* pStructTemp = pStruct7;
+  int i = 1, j = 1;
+
+  // Traverse double linked list of headers until we hit NULL on pNext
+  while (pStructTemp != NULL)
+  { 
+    // Declare a temp pointer from header struct
+    Object4* pObjectTemp = (Object4*)pStructTemp->pObject;
+
+    // Traverse linked list of objects
+    while (pObjectTemp != NULL)
+    { 
+      pBinaryTree = InsertNode(pBinaryTree, pObjectTemp);
+      // Set traversal pointer to pNext of current Object
+      pObjectTemp = pObjectTemp->pNext;
+      j++;
+    }
+    // Set traversal pointer to pNext of current Header
+    pStructTemp = pStructTemp->pNext;
+    i++;
+  }
+  return pBinaryTree; 
+}
+
+Stack *Push(Stack *pStack, Object4 *pRecord)
+{
+  Stack *pNew;
+  if(!pRecord)
+  {
+    return pStack;
+  }
+  pNew = (Stack *)malloc(sizeof(Stack));
+  pNew->pObject = pRecord;
+  pNew->pNext = pStack;
+  return pNew;
+}
+
+Stack *Pop(Stack *pStack,void **pResult)
+{
+  Stack *p;
+  if(!pStack)
+  {
+    *pResult = 0;
+    return pStack;
+  }
+  *pResult = pStack->pObject;
+  p = pStack->pNext;
+  return p;
+}
+
+void TreeTraversal(Node *pTree)
+{
+  Stack *pStack = 0;
+  Node *p1 = pTree, *p2;
+  if (!pTree)
+    return;
+  do
+  {
+    while(p1)
+    {
+      pStack = Push(pStack, (Object4*)p1->pObject);
+      p1 = p1->pLeft;
+    }
+    pStack = Pop(pStack, (void**)&p2);
+
+    Object4* pTreeObject = (Object4*)p2->pObject;
+    char* pID=pTreeObject->pID;
+    printf("[Obj] %s", pID);
+
+    p1 = p2->pRight;
+  }
+  while(!(!pStack && !p1));
+}
+
 int main()
 {
   // Struct is given by instructor, for Karl-Andreas Turvas Struct7
@@ -319,5 +430,7 @@ int main()
   }
   PrintObjects(pStruct7);
 
+  Node *pBinaryTree = CreateBinaryTree(pStruct7);
+  TreeTraversal(pBinaryTree);
   return 0;
 }
